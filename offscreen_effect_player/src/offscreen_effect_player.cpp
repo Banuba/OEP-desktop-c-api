@@ -3,6 +3,15 @@
 
 #include <iostream>
 
+#define CHECK_ERROR(error)                                  \
+    do {                                                    \
+        if (error) {                                        \
+            std::string msg = bnb_error_get_message(error); \
+            bnb_error_destroy(error);                       \
+            throw std::runtime_error(msg);                  \
+        }                                                   \
+    } while (false);
+
 namespace bnb
 {
     ioep_sptr interfaces::offscreen_effect_player::create(
@@ -93,17 +102,24 @@ namespace bnb
                 m_ort->activate_context();
                 m_ort->prepare_rendering();
 
+                bnb_error* error = nullptr;
                 full_image_holder_t* img = bnb_full_image_from_yuv_nv12_img(
                     image->get_format(),
                     image->get_y_data(), image->get_y_stride(),
                     image->get_uv_data(), image->get_uv_stride(),
-                    nullptr);
-                bnb_effect_player_push_frame(m_ep, img, nullptr);
+                    &error);
+                CHECK_ERROR(error);
+                if (!img) {
+                    throw std::runtime_error("no image was created");
+                }
+                bnb_effect_player_push_frame(m_ep, img, &error);
+                CHECK_ERROR(error);
                 bnb_full_image_release(img, nullptr);
 
-                while (bnb_effect_player_draw(m_ep, nullptr) < 0) {
+                while (bnb_effect_player_draw(m_ep, &error) < 0) {
                     std::this_thread::yield();
                 }
+                CHECK_ERROR(error);
                 m_ort->orient_image(*target_orient);
                 callback(m_current_frame);
                 m_current_frame->unlock();
