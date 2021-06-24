@@ -67,7 +67,7 @@ target_link_libraries(example
 )
 
 if (APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
 
     set(EXAMPLE_RESOURCES ${BNB_RESOURCES_FOLDER}/mac/bnb_viewer.icns)
     target_sources(example PRIVATE
