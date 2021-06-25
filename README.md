@@ -3,13 +3,13 @@ Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba
 # Getting Started
 
 1. Get the latest Banuba SDK archive for MacOS/Windows and the client token. Please fill out our form at [form at banuba.com](https://www.banuba.com/face-filters-sdk) website, or contact us via [info@banuba.com](mailto:info@banuba.com).
-2. Copy `bnb_sdk/` from Banuba SDK **C API** archive into the `quickstart-desktop-cpp/bnb_sdk` dir:
-    `bnb_sdk/` => `quickstart-desktop-cpp/bnb_sdk`
-3. Copy `bnb_viewer_standalone/resources/` files into the `quickstart-desktop-cpp/resources` dir:
-    `bnb_viewer_standalone/resources/` => `quickstart-desktop-cpp/resources`
-4. Copy `bnb_viewer_standalone/third` files into the `quickstart-desktop-cpp/third` dir:
-    `bnb_viewer_standalone/third/` => `quickstart-desktop-cpp/third`
-5. Copy and Paste your client token into the appropriate section of `quickstart-desktop-cpp/main.cpp`
+2. Extract Banuba SDK **C API** archive into the `OEP-desktop-c-api/bnb_sdk_c_api` dir:
+    `bnb_sdk_c_api/` => `OEP-desktop-c-api/bnb_sdk_c_api`
+3. Copy `bnb_viewer_standalone/resources/` files into the `OEP-desktop-c-api/resources` dir:
+    `bnb_viewer_standalone/resources/` => `OEP-desktop-c-api/resources`
+4. Copy `bnb_viewer_standalone/third` files into the `OEP-desktop-c-api/third` dir:
+    `bnb_viewer_standalone/third/` => `OEP-desktop-c-api/third`
+5. Copy and Paste your client token into the appropriate section of `OEP-desktop-c-api/main.cpp`
 6. Generate project files by executing the following commands:
 
     ##### Windows x86 build:
