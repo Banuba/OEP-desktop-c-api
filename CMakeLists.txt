@@ -29,7 +29,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
 # Main
 #
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bnb_sdk)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bnb_sdk_c_api)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libraries)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/offscreen_effect_player)

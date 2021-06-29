@@ -1,31 +1,32 @@
-set(include_dirs
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/
-)
-
 file(GLOB_RECURSE srcs
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/*.hpp
 )
 
 add_library(camera STATIC ${srcs})
 
 target_include_directories(camera PUBLIC
-    ${include_dirs}
+    ${CMAKE_CURRENT_LIST_DIR}/include/
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${PROJECT_SOURCE_DIR}
 )
-
-target_include_directories(camera PUBLIC ${PROJECT_SOURCE_DIR})
 
 if (APPLE)
     set(apple_includes
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform/macos/
+        ${CMAKE_CURRENT_LIST_DIR}/platform/macos/
     )
 
     file(GLOB_RECURSE apple_srcs
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform/macos/*.mm
+        ${CMAKE_CURRENT_LIST_DIR}/platform/macos/*.mm
     )
 
     target_sources(camera PUBLIC ${apple_srcs})
     target_include_directories(camera PUBLIC ${apple_includes})
+elseif (WIN32)
+    file(GLOB_RECURSE win_srcs
+        ${CMAKE_CURRENT_LIST_DIR}/platform/windows/*.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/platform/windows/*.cpp
+    )
+    target_sources(camera PUBLIC ${win_srcs})
 endif()
 
 target_link_libraries(camera

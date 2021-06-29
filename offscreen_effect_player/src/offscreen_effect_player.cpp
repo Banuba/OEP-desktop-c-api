@@ -34,14 +34,16 @@ namespace bnb
             : m_ort(offscreen_render_target)
             , m_scheduler(1)
     {
-        const char** res_paths = new const char* [path_to_resources.size() + 1];
-        std::transform(path_to_resources.begin(), path_to_resources.end(), res_paths, [](const auto& s) { return s.c_str(); });
-        res_paths[path_to_resources.size()] = nullptr;
-        m_utility = bnb_utility_manager_init(res_paths, client_token.c_str(), nullptr);
-        delete[] res_paths;
+        std::unique_ptr<const char* []> res_paths = std::make_unique<const char* []>(path_to_resources.size() + 1);
+        std::transform(path_to_resources.begin(), path_to_resources.end(), res_paths.get(), [](const auto& s) { return s.c_str(); });
+        res_paths.get()[path_to_resources.size()] = nullptr;
+        m_utility = bnb_utility_manager_init(res_paths.get(), client_token.c_str(), nullptr);
 
         bnb_effect_player_configuration_t ep_cfg{width, height, bnb_nn_mode_automatically, bnb_good, false, manual_audio};
         m_ep = bnb_effect_player_create(&ep_cfg, nullptr);
+        if (m_ep == nullptr) {
+            throw std::runtime_error("Failed to create effect player holder.");
+        }
         // MacOS GLFW requires window creation on main thread, so it is assumed that we are on main thread.
         auto task = [this, width, height]() {
             render_thread_id = std::this_thread::get_id();

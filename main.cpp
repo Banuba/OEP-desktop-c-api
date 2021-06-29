@@ -6,9 +6,11 @@
 
 #include "camera_base.hpp"
 
+#include <iostream>
+
 #define BNB_CLIENT_TOKEN <#Place your token here#>
 
-int main()
+void play_effect(const std::string& effect_name)
 {
     // Frame size
     constexpr int32_t oep_width = 1280;
@@ -17,7 +19,9 @@ int main()
     std::shared_ptr<glfw_window> window = nullptr; // Should be declared here to destroy in the last turn
 
     // Init glfw for glfw_window 
-    glfwInit();
+    if (!glfwInit()) {
+        throw std::runtime_error("Failed to initialize glfw");
+    }
 
     // Create an instance of our offscreen_render_target implementation, you can use your own.
     // pass dimension of processing frame
@@ -28,7 +32,7 @@ int main()
     // with camera frame dimensions), manual sound (useful fro some cases when sound 
     // should start and specified moment
     auto oep = bnb::interfaces::offscreen_effect_player::create({ BNB_RESOURCES_FOLDER }, BNB_CLIENT_TOKEN,
-                                               oep_width, oep_height, false, ort);
+        oep_width, oep_height, false, ort);
 
     // Make glfw_window and render_thread only for show result of OEP
     // We want to share resources between context, we know that offscreen_render_target is based on GLFW and returned context
@@ -42,7 +46,7 @@ int main()
     };
     glfwSetKeyCallback(window->get_window(), key_func);
 
-    oep->load_effect("effects/Afro");
+    oep->load_effect(effect_name);
 
     // Create and run instance of camera, pass callback for frames
     // Callback for received frame from the camera
@@ -68,6 +72,17 @@ int main()
 
     window->show(oep_width, oep_height);
     window->run_main_loop();
+}
+
+int main()
+{
+    try {
+        play_effect("effects/Afro");
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what();
+        return -1;
+    }
 
     return 0;
 }
