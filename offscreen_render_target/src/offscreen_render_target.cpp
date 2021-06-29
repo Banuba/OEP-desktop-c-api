@@ -324,13 +324,7 @@ namespace bnb
             bnb_error_destroy(error);
             throw std::runtime_error("gladLoadGLLoader error");
         }
-/*
-    #if BNB_OS_WINDOWS || BNB_OS_MACOS
-        // it's only need for use while working with dynamic libs
-        utility::load_glad_functions((GLADloadproc) glfwGetProcAddress);
-        bnb::interfaces::postprocess_helper::load_glad_functions(reinterpret_cast<int64_t>(glfwGetProcAddress));
-    #endif
-*/
+
         if (0 == gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
             throw std::runtime_error("gladLoadGLLoader error");
         }

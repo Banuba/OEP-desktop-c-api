@@ -1,13 +1,9 @@
 #include "glfw_window.hpp"
 
 #include <effect_player.h>
-//#include <bnb/effect_player/utility.hpp>
-//#include <bnb/utils/defs.hpp>
-//#include <bnb/postprocess/interfaces/postprocess_helper.hpp>
+#include "defs.hpp"
 
 #include <glad/glad.h>
-
-//using namespace bnb;
 
 glfw_window::glfw_window(const std::string& title, GLFWwindow* share)
 {
@@ -116,13 +112,7 @@ void glfw_window::load_glad_functions()
         bnb_error_destroy(error);
         throw std::runtime_error("gladLoadGLLoader error");
     }
-/*
-#if BNB_OS_WINDOWS || BNB_OS_MACOS
-    // it's only need for use while working with dynamic libs
-    utility::load_glad_functions((GLADloadproc) glfwGetProcAddress);
-    bnb::interfaces::postprocess_helper::load_glad_functions(reinterpret_cast<int64_t>(glfwGetProcAddress));
-#endif
-*/
+
     if (0 == gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         throw std::runtime_error("gladLoadGLLoader error");
     }
