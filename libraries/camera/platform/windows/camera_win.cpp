@@ -52,7 +52,7 @@ bnb::camera_win::camera_win(const camera_base::push_frame_cb_t& cb)
 
 bnb::camera_win::~camera_win()
 {
-    // m_impl->wrapped->Stop();
+    m_impl->wrapped->Stop();
 }
 
 void bnb::camera_win::set_device_by_index(uint32_t index)
