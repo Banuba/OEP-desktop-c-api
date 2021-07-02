@@ -1,6 +1,6 @@
 #pragma once
 
-#include <effect_player.h>
+#include <bnb/common_types.h>
 
 namespace bnb::interfaces {
     struct orient_format

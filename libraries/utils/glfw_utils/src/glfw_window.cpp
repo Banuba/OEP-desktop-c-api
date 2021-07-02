@@ -1,6 +1,6 @@
 #include "glfw_window.hpp"
 
-#include <effect_player.h>
+#include <bnb/effect_player.h>
 #include "defs.hpp"
 
 #include <glad/glad.h>

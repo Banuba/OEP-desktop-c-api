@@ -1,6 +1,7 @@
 #pragma once
 
-#include <effect_player.h>
+#include <bnb/effect_player.h>
+#include <bnb/utility_manager.h>
 
 #include "interfaces/offscreen_effect_player.hpp"
 #include "interfaces/offscreen_render_target.hpp"

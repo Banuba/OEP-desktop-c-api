@@ -2,9 +2,7 @@
 
 #include "opengl.hpp"
 
-#include <effect_player.h>
-//#include <bnb/effect_player/utility.hpp>
-//#include <bnb/postprocess/interfaces/postprocess_helper.hpp>
+#include <bnb/effect_player.h>
 
 namespace bnb
 {

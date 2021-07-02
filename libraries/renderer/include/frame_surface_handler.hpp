@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <effect_player.h>
+#include <bnb/common_types.h>
 
 #include "opengl.hpp"
 #include <algorithm>
