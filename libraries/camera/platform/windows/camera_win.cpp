@@ -26,7 +26,11 @@ bnb::camera_win::camera_win(const camera_base::push_frame_cb_t& cb)
     constexpr auto camera_hight = 720;
     constexpr auto frames_per_second = 30;
     m_impl->wrapped->Init();
-    m_impl->wrapped->SetCallback([this, camera_width, camera_hight](std::shared_ptr<ScopedBufferLock> lock) {
+
+    VideoPixelFormat pixel_format = PIXEL_FORMAT_NV12;
+    m_impl->wrapped->AllocateAndStart(camera_width, camera_hight, frames_per_second, pixel_format);
+
+    m_impl->wrapped->SetCallback([this, camera_width, camera_hight, pixel_format](std::shared_ptr<ScopedBufferLock> lock) {
         bnb_image_format_t format;
         format.orientation = BNB_DEG_0;
         format.face_orientation = 0;
@@ -37,17 +41,32 @@ bnb::camera_win::camera_win(const camera_base::push_frame_cb_t& cb)
         auto data = static_cast<uint8_t*>(lock->data());
         auto surface_stride = lock->pitch();
         auto y_plane_size = format.width * format.height;
+
+        color_plane y_plane = color_plane(data, [lock](color_plane_data_t*) { /* DO NOTHING */ });
+        color_plane uv_plane;
+
+        if (pixel_format == PIXEL_FORMAT_NV12) {
+            uv_plane = color_plane(data + y_plane_size, [lock](color_plane_data_t*) { /* DO NOTHING */ });
+        } else if (pixel_format == PIXEL_FORMAT_I420) {
+            std::vector<uint8_t> uv_plane_vector;
+            for (size_t i = 0; i < y_plane_size / 4; ++i) {
+                uv_plane_vector.emplace_back(data[i + y_plane_size]);
+                uv_plane_vector.emplace_back(data[i + y_plane_size + y_plane_size / 4]);
+            }
+
+            auto* ptr = new std::vector<color_plane_data_t>(std::move(uv_plane_vector));
+            uv_plane = color_plane(ptr->data(), [ptr](color_plane_data_t*) { delete ptr; });
+        } else {
+            throw std::runtime_error("Unsupported format from camera");
+        }
+
         // see nv12_image.hpp
-        auto img = std::make_shared<nv12_image>(
-            color_plane(data, [lock](color_plane_data_t*) { /* DO NOTHING */ }), surface_stride,
-            color_plane(data + y_plane_size, [lock](color_plane_data_t*) { /* DO NOTHING */ }), surface_stride,
-            format);
+        auto img = std::make_shared<nv12_image>(y_plane, surface_stride, uv_plane, surface_stride, format);
 
         if (m_push_frame_cb) {
             m_push_frame_cb(std::move(img));
         }
     });
-    m_impl->wrapped->AllocateAndStart(camera_width, camera_hight, frames_per_second);
 }
 
 bnb::camera_win::~camera_win()

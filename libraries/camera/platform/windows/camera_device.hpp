@@ -782,7 +782,7 @@ public:
         return hr;
     }
 
-    void AllocateAndStart(int width, int height, UINT32 frame_rate) {
+    void AllocateAndStart(int width, int height, UINT32 frame_rate, VideoPixelFormat& pixel_format) {
         ComPtr<IMFCaptureSource> source;
         HRESULT hr = engine_->GetSource(&source);
         if (FAILED(hr)) { assert(0); }
@@ -793,7 +793,7 @@ public:
         VideoCaptureFormat requested;
         requested.frame_size.SetWidthAndHeight(width, height);
         requested.frame_rate = static_cast<float>(frame_rate);
-        requested.pixel_format = PIXEL_FORMAT_NV12;
+        requested.pixel_format = pixel_format;
 
         const CapabilityWin best_match_video_capability =
             GetBestMatchedCapability(requested, video_capabilities);
@@ -801,6 +801,9 @@ public:
             best_match_video_capability.supported_format.frame_size.height() != height) {
             assert(0);
         }
+
+        pixel_format = best_match_video_capability.supported_format.pixel_format;
+
         ComPtr<IMFMediaType> source_video_media_type;
         hr = source->GetAvailableDeviceMediaType(best_match_video_capability.stream_index,
             best_match_video_capability.media_type_index, &source_video_media_type);
