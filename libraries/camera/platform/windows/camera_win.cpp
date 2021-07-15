@@ -38,7 +38,7 @@ bnb::camera_win::camera_win(const camera_base::push_frame_cb_t& cb)
         format.width = camera_width;
         format.height = camera_hight;
 
-        auto data = static_cast<uint8_t*>(lock->data());
+        auto data = static_cast<color_plane_data_t*>(lock->data());
         auto surface_stride = lock->pitch();
         auto y_plane_size = format.width * format.height;
 
@@ -48,7 +48,8 @@ bnb::camera_win::camera_win(const camera_base::push_frame_cb_t& cb)
         if (pixel_format == PIXEL_FORMAT_NV12) {
             uv_plane = color_plane(data + y_plane_size, [lock](color_plane_data_t*) { /* DO NOTHING */ });
         } else if (pixel_format == PIXEL_FORMAT_I420) {
-            std::vector<uint8_t> uv_plane_vector;
+            std::vector<color_plane_data_t> uv_plane_vector;
+            uv_plane_vector.reserve(y_plane_size / 2);
             for (size_t i = 0; i < y_plane_size / 4; ++i) {
                 uv_plane_vector.emplace_back(data[i + y_plane_size]);
                 uv_plane_vector.emplace_back(data[i + y_plane_size + y_plane_size / 4]);
