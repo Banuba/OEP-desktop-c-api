@@ -94,6 +94,11 @@ if (APPLE)
         # Explicitly skip code signing (CMake tries to turn it on for application bundles)
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
     )
+
+    target_link_libraries(example
+        "-framework AVFoundation"
+        "-framework CoreMedia"
+    )
 endif()
 
 copy_sdk(example)
