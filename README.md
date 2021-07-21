@@ -66,6 +66,18 @@ Contributions are what make the open source community such an amazing place to l
 - **interfaces** - offscreen effect player interfaces
 - **main.cpp** - contains the main function implementation, demonstrating basic pipeline for frame processing to apply effect offscreen
 
+## How to change an effect
+1. Open `OEP-desktop-c-api/main.cpp`
+2. On line 80 find:
+ ```
+try {
+    play_effect("effects/Afro");
+}
+ ```
+3. Write the effect name that you want to run. For example: ("effects/your_effect_name")
+
+*Note:* The effect must be in `OEP-desktop-c-api-master/resources/effect`.
+
 # Note
 
 For integration of the Offscreen Effect player to your application it is necessary to copy the offscreen_effect_player folder and implement interfaces for offscreen_render_target, but if your application is based on the GLFW library, you can just reuse offscreen_render_target with the utility library.
