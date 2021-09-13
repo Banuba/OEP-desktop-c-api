@@ -59,3 +59,5 @@ namespace bnb
         std::atomic<uint16_t> m_incoming_frame_queue_task_count = 0;
     };
 } // bnb
+
+using ioep_wptr = std::weak_ptr<bnb::interfaces::offscreen_effect_player>;
