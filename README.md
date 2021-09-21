@@ -59,19 +59,6 @@ Contributions are what make the open source community such an amazing place to l
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-# Sample structure
-
-- **offscreen_effect_player** - is a wrapper for effect_player. It allows you to use your own implementation for offscreen_render_target
-- **offscreen_render_target** - is an implementation option for the offscreen_render_target interface. Allows to prepare gl framebuffers and textures for receiving a frame from gpu, receive bytes of the processed frame from the gpu and pass them to the cpu, as well as, if necessary, set the orientation for the received frame. This implementation uses GLFW to work with gl context
-- **libraries**
-  - **renderer** - used only to demonstrate how to work with offscreen_effect_player. Draws received frames to the specified GLFW window
-  - **utils**
-    - **glfw_utils** - contains helper classes to work with GLFW
-    - **ogl_utils** - contains helper classes to work with Open GL
-    - **utils** - contains common helper classes such as thread_pool
-- **interfaces** - offscreen effect player interfaces
-- **main.cpp** - contains the main function implementation, demonstrating basic pipeline for frame processing to apply effect offscreen
-
 ## How to change an effect
 1. Open `OEP-desktop-c-api/main.cpp`
 2. On line 80 find:
@@ -83,6 +70,11 @@ try {
 3. Write the effect name that you want to run. For example: ("effects/your_effect_name")
 
 *Note:* The effect must be in `OEP-desktop-c-api-master/resources/effect`.
+
+# Sample structure
+
+- **oep** - submodule with offscreen effect player
+- **main.cpp** - contains the main function implementation, demonstrating basic pipeline for frame processing to apply effect offscreen
 
 # Note
 
