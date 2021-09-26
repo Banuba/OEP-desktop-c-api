@@ -50,7 +50,7 @@ void play_effect(const std::string& effect_name)
 
     // Create and run instance of camera, pass callback for frames
     // Callback for received frame from the camera
-    auto ef_cb = [&oep, render_t](std::shared_ptr<nv12_image> image) {
+    auto ef_cb = [&oep, render_t](std::shared_ptr<image_wrapper> image) {
         // Callback for received pixel buffer from the offscreen effect player
         auto get_pixel_buffer_callback = [image, render_t](std::optional<ipb_sptr> pb) {
             if (pb.has_value()) {
