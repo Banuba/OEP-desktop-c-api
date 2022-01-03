@@ -20,5 +20,5 @@ target_link_libraries(renderer
     glad
     glfw
     ogl_utils
-    yuv
+    bnb_oep_opengl_program_target
 )

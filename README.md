@@ -11,11 +11,11 @@ Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba
     `bnb_viewer_standalone/third/` => `OEP-desktop-c-api/third`
 5. Copy and Paste your client token into the appropriate section of `OEP-desktop-c-api/main.cpp`
 6. Generate project files by executing the following commands:
-
     ##### Windows x86 build:
 
     ```bat
         cd %path_to_repository%
+        git submodule update --init
         mkdir build
         cd build
         cmake -A Win32 ..
@@ -25,6 +25,7 @@ Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba
 
     ```bat
         cd %path_to_repository%
+        git submodule update --init
         mkdir build
         cd build
         cmake -A x64 ..
@@ -34,6 +35,7 @@ Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba
 
     ```sh
         cd $path_to_repository
+        git submodule update --init
         mkdir build
         cd build
         cmake -G Xcode ..
@@ -55,20 +57,20 @@ Contributions are what make the open source community such an amazing place to l
 
 # Sample structure
 
-- **offscreen_effect_player** - is a wrapper for effect_player. It allows you to use your own implementation for offscreen_render_target
-- **offscreen_render_target** - is an implementation option for the offscreen_render_target interface. Allows to prepare gl framebuffers and textures for receiving a frame from gpu, receive bytes of the processed frame from the gpu and pass them to the cpu, as well as, if necessary, set the orientation for the received frame. This implementation uses GLFW to work with gl context
+- **oep** - is a submodule of the offscreen effect player
 - **libraries**
-  - **renderer** - used only to demonstrate how to work with offscreen_effect_player. Draws received frames to the specified GLFW window
-  - **utils**
-    - **glfw_utils** - contains helper classes to work with GLFW
-    - **ogl_utils** - contains helper classes to work with Open GL
-    - **utils** - contains common helper classes such as thread_pool
-- **interfaces** - offscreen effect player interfaces
+    - **renderer** - used only to demonstrate how to work with offscreen_effect_player. Draws received frames to the specified GLFW window
+    - **utils**
+        - **glfw_utils** - contains helper classes to work with GLFW
+        - **ogl_utils** - contains helper classes to work with Open GL
+        - **utils** - сontains common helper classes such as thread_pool
 - **main.cpp** - contains the main function implementation, demonstrating basic pipeline for frame processing to apply effect offscreen
+- **effect_player.cpp effect_player.hpp** - contains the custom implementation of the effect_player interface with using cpp api
+- **render_context.cpp render_context.hpp** - contains the custom implementation of the render_context interface with using GLFW
 
 ## How to change an effect
 1. Open `OEP-desktop-c-api/main.cpp`
-2. On line 80 find:
+2. On line 87 find:
  ```
 try {
     play_effect("effects/Afro");
@@ -80,4 +82,4 @@ try {
 
 # Note
 
-For integration of the Offscreen Effect player to your application it is necessary to copy the offscreen_effect_player folder and implement interfaces for offscreen_render_target, but if your application is based on the GLFW library, you can just reuse offscreen_render_target with the utility library.
+For integration of the Offscreen Effect player to your application it is necessary to copy the oep folder and implement interfaces for effect_player and render_context, but if your application is based on the GLFW library and using bnb_effect_player cpp api, you can just reuse current implementation.
