@@ -1,19 +1,13 @@
 #pragma once
 
-// #include <bnb/types/full_image.hpp>
+#include <bnb/effect_player.h>
 
-#include "program.hpp"
+#include <opengl/program.hpp>
 #include "frame_surface_handler.hpp"
 
 namespace bnb::render
 {
-/*
-    struct nv12_planes
-    {
-        color_plane y_plane;
-        color_plane uv_plane;
-    };
-*/
+
     class renderer
     {
     public:
@@ -25,7 +19,7 @@ namespace bnb::render
         bool draw();
 
     private:
-        program m_program;
+        bnb::oep::program m_program;
         frame_surface_handler m_frame_surface;
 
         int m_width;

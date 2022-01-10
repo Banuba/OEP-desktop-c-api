@@ -1,8 +1,8 @@
 function(copy_sdk target)
     if (MSVC)
         set_property(TARGET ${target} APPEND PROPERTY LINK_FLAGS /STACK:4194304)
-        set(SDK_EFFECT_PLAYER_LIB "BNBEffectPlayerC")
         set(SDK_FILE_TYPE "dll")
+        set(SDK_EFFECT_PLAYER_LIB "BNBEffectPlayerC")
 
         add_custom_command(
             TARGET ${target}

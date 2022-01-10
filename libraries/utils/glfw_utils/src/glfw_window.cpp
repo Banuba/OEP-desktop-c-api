@@ -1,9 +1,8 @@
 #include "glfw_window.hpp"
 
-#include <bnb/effect_player.h>
-#include "defs.hpp"
-
+#include <bnb/utility_manager.h>
 #include <glad/glad.h>
+
 
 glfw_window::glfw_window(const std::string& title, GLFWwindow* share)
 {
@@ -36,7 +35,6 @@ void glfw_window::set_resize_callback(std::function<void(int32_t w, int32_t h, i
     surface_changed_callback = surface_changed;
 }
 
-
 void glfw_window::show(uint32_t width_hint, uint32_t height_hint)
 {
     window_width = width_hint;
@@ -58,7 +56,7 @@ void glfw_window::run_main_loop()
     while (!glfwWindowShouldClose(m_window)) {
         glfwWaitEvents();
         m_scheduler.run_all_tasks();
-        
+
         if (surface_changed_callback && resized) {
             int32_t buffer_width, buffer_height;
             glfwGetFramebufferSize(m_window, &buffer_width, &buffer_height);
@@ -118,7 +116,7 @@ void glfw_window::create_window(const std::string& title, GLFWwindow* share)
     if (nullptr == m_window) {
         throw std::runtime_error("glfwCreateWindow error");
     }
-    
+
     glfwSetWindowSizeCallback(m_window, [](GLFWwindow*, int w, int h) {
         glViewport(0, 0, w, h);
         window_width = w;
@@ -129,12 +127,10 @@ void glfw_window::create_window(const std::string& title, GLFWwindow* share)
 
 void glfw_window::load_glad_functions()
 {
-    bnb_error* error = nullptr;
-    bnb_effect_player_load_glad_functions((void*)glfwGetProcAddress, &error);
-    if (error) {
-        bnb_error_destroy(error);
-        throw std::runtime_error("gladLoadGLLoader error");
-    }
+#if BNB_OS_WINDOWS || BNB_OS_MACOS
+    // it's only need for use while working with dynamic libs
+    utility::load_glad_functions((GLADloadproc) glfwGetProcAddress);
+#endif
 
     if (0 == gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         throw std::runtime_error("gladLoadGLLoader error");
