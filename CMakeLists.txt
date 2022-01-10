@@ -45,9 +45,9 @@ if (APPLE)
     set(SDK_FRAMEWORK_PATH "${CMAKE_CURRENT_LIST_DIR}/bnb_sdk_c_api/mac")
     set(FullEPFrameworkPath "${SDK_FRAMEWORK_PATH}/$(CONFIGURATION)/BNBEffectPlayerC.framework")
     add_custom_command(OUTPUT "${FullEPFrameworkPath}" COMMAND "")
-    
+
     add_executable(example main.cpp effect_player.hpp effect_player.cpp render_context.hpp render_context.cpp ${FullEPFrameworkPath})
-    
+
     set_source_files_properties(${FullEPFrameworkPath} PROPERTIES MACOSX_PACKAGE_LOCATION Frameworks)
 else (APPLE)
     add_executable(example main.cpp effect_player.hpp effect_player.cpp render_context.hpp render_context.cpp)

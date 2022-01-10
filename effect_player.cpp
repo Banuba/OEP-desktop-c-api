@@ -104,7 +104,7 @@ namespace bnb::oep
     }
 
     /* effect_player::push_frame */
-    void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation) 
+    void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation)
     {
         full_image_holder_t * bnb_image {nullptr};
 
