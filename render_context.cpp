@@ -42,7 +42,7 @@ namespace bnb::oep
     {
         glfwMakeContextCurrent(m_context);
         bnb_error * error {nullptr};
-        bnb_effect_player_load_glad_functions((void*) glfwGetProcAddress, &error);
+        bnb_effect_player_load_gl_functions(&error);
         if (error) {
             bnb_error_destroy(error);
             throw std::runtime_error("gladLoadGLLoader error");
