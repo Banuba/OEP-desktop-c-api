@@ -68,9 +68,9 @@ namespace bnb::oep
     {
         if (auto e_manager = bnb_effect_player_get_effect_manager(m_ep, nullptr)) {
             bnb_effect_manager_load_effect(e_manager, effect.c_str(), nullptr);
-            std::cout << "[Error] effect manager not initialized" << std::endl;
             return true;
         }
+        std::cout << "[Error] effect manager not initialized" << std::endl;
         return false;
     }
 
