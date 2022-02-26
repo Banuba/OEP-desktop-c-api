@@ -18,10 +18,15 @@ namespace bnb::oep
     /* effect_player::effect_player CONSTRUCTOR */
     effect_player::effect_player(const std::vector<std::string>& path_to_resources, const std::string& client_token)
     {
+        bnb_error* error = nullptr;
         std::unique_ptr<const char*[]> res_paths = std::make_unique<const char*[]>(path_to_resources.size() + 1);
         std::transform(path_to_resources.begin(), path_to_resources.end(), res_paths.get(), [](const auto& s) { return s.c_str(); });
         res_paths.get()[path_to_resources.size()] = nullptr;
         m_utility = bnb_utility_manager_init(res_paths.get(), client_token.c_str(), nullptr);
+
+        // We need this line to switch the effect_player to OpenGL instead of METAL, which is default for MacOS.
+        // On other platforms this line does no harm.
+        bnb_effect_player_set_render_backend(bnb_render_backend_opengl, &error);
 
         bnb_effect_player_configuration_t ep_cfg{1, 1, bnb_nn_mode_enable, bnb_good, false, false};
         m_ep = bnb_effect_player_create(&ep_cfg, nullptr);
