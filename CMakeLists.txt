@@ -59,12 +59,12 @@ target_link_libraries(example
     bnb_effect_player
     opencv
     renderer
+    camera
     # below OEP targets
     bnb_oep_pixel_buffer_target
     bnb_oep_image_processing_result_target
     bnb_oep_offscreen_effect_player_target
     bnb_oep_offscreen_render_target_target
-    bnb_oep_camera_target
 )
 
 if (APPLE)

@@ -1,6 +1,6 @@
 #include <interfaces/offscreen_effect_player.hpp>
-#include <interfaces/camera.hpp>
 
+#include "libraries/camera/camera.hpp"
 #include "render_context.hpp"
 #include "effect_player.hpp"
 
@@ -64,7 +64,7 @@ void play_effect(const std::string& effect_name)
 
         oep->process_image_async(image, bnb::oep::interfaces::rotation::deg0, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg180);
     };
-    auto m_camera_ptr = bnb::oep::interfaces::camera::create(ef_cb, 0);
+    auto m_camera_ptr = bnb::camera::create(ef_cb, 0);
 
     std::weak_ptr<bnb::oep::interfaces::offscreen_effect_player> oep_w = oep;
     render_t_wptr r_w = render_t;
