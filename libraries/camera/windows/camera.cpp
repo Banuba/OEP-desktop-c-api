@@ -1,9 +1,9 @@
-#include "camera.hpp"
+#include "../camera.hpp"
 
 #include "camera_device.hpp"
 #include <iostream>
 
-namespace bnb::oep
+namespace bnb
 {
 
     struct camera::impl
@@ -21,7 +21,7 @@ namespace bnb::oep
     }; /* struct camera::impl */
 
     /* camera::camera */
-    camera::camera(bnb::oep::interfaces::camera::push_frame_cb_t cb)
+    camera::camera(bnb::camera::push_frame_cb_t cb)
         : m_push_frame_cb(cb)
         , m_impl(std::make_unique<impl>())
     {
@@ -97,13 +97,13 @@ namespace bnb::oep
     }
 
     /* interfaces::camera::create */
-    camera_sptr bnb::oep::interfaces::camera::create(bnb::oep::interfaces::camera::push_frame_cb_t cb, size_t index)
+    camera_sptr bnb::camera::create(bnb::camera::push_frame_cb_t cb, size_t index)
     {
-        return std::make_shared<bnb::oep::camera>(cb);
+        return std::make_shared<bnb::camera>(cb);
     }
 
     /* camera::get_connected_devices */
-    const std::vector<bnb::oep::interfaces::camera::camera_device_description> camera::get_connected_devices() const
+    const std::vector<bnb::camera::camera_device_description> camera::get_connected_devices() const
     {
         return m_connected_devices;
     }
@@ -114,4 +114,4 @@ namespace bnb::oep
         return m_device_index;
     }
 
-} /* namespace bnb::oep */
+} /* namespace bnb */
