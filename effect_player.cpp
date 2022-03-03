@@ -24,8 +24,7 @@ namespace bnb::oep
         res_paths.get()[path_to_resources.size()] = nullptr;
         m_utility = bnb_utility_manager_init(res_paths.get(), client_token.c_str(), nullptr);
 
-        // We need this line to switch the effect_player to OpenGL instead of METAL, which is default for MacOS.
-        // On other platforms this line does no harm.
+        // This particular example relies on OpenGL, so it should be explicitly requested
         bnb_effect_player_set_render_backend(bnb_render_backend_opengl, &error);
 
         bnb_effect_player_configuration_t ep_cfg{1, 1, bnb_nn_mode_enable, bnb_good, false, false};
