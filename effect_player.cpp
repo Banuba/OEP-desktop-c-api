@@ -110,54 +110,25 @@ namespace bnb::oep
     /* effect_player::push_frame */
     void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation)
     {
-        full_image_holder_t * bnb_image {nullptr};
+        struct releaser_data_t
+        {
+            pixel_buffer_sptr img{nullptr};
+            full_image_holder_t* bnb_img{nullptr};
+        };
 
-        using ns = bnb::oep::interfaces::image_format;
-        auto bnb_image_format = make_bnb_image_format(image, image_orientation);
-        switch (image->get_image_format()) {
-            case ns::bpc8_rgb:
-            case ns::bpc8_bgr:
-            case ns::bpc8_rgba:
-            case ns::bpc8_bgra:
-            case ns::bpc8_argb:
-                bnb_image = bnb_full_image_from_bpc8_img(
-                    bnb_image_format,
-                    make_bnb_pixel_format(image),
-                    image->get_base_sptr().get(),
-                    image->get_bytes_per_row(),
-                    nullptr);
-                break;
-            case ns::nv12_bt601_full:
-            case ns::nv12_bt601_video:
-            case ns::nv12_bt709_full:
-            case ns::nv12_bt709_video:
-                bnb_image = bnb_full_image_from_yuv_nv12_img(
-                    bnb_image_format,
-                    image->get_base_sptr_of_plane(0).get(),
-                    image->get_bytes_per_row_of_plane(0),
-                    image->get_base_sptr_of_plane(1).get(),
-                    image->get_bytes_per_row_of_plane(1),
-                    nullptr);
-                break;
-            case ns::i420_bt601_full:
-            case ns::i420_bt601_video:
-            case ns::i420_bt709_full:
-            case ns::i420_bt709_video:
-                bnb_image = bnb_full_image_from_yuv_i420_img(
-                    bnb_image_format,
-                    image->get_base_sptr_of_plane(0).get(),
-                    image->get_bytes_per_row_of_plane(0),
-                    1,
-                    image->get_base_sptr_of_plane(1).get(),
-                    image->get_bytes_per_row_of_plane(1),
-                    1,
-                    image->get_base_sptr_of_plane(2).get(),
-                    image->get_bytes_per_row_of_plane(2),
-                    1, nullptr);
-                break;
-            default:
-                break;
-        }
+        auto releaser = [](void* releaser_data) {
+            releaser_data_t* data = reinterpret_cast<releaser_data_t*>(releaser_data);
+            data->img = nullptr; // Not necessary. The 'delete data;' will do everything for us.
+            bnb_full_image_release(data->bnb_img, nullptr);
+            delete data;
+        };
+
+        releaser_data_t* releaser_data_ptr = new releaser_data_t;
+        releaser_data_ptr->img = image;
+
+        full_image_holder_t * bnb_image = make_bnb_image(image, image_orientation, releaser, reinterpret_cast<void*>(releaser_data_ptr));
+
+        releaser_data_ptr->bnb_img = bnb_image;
 
         if (!bnb_image) {
             throw std::runtime_error("no image was created");
@@ -171,8 +142,6 @@ namespace bnb::oep
             bnb_error_destroy(error);
             throw std::runtime_error(msg);
         }
-
-        bnb_full_image_release(bnb_image, nullptr);
     }
 
     /* effect_player::draw */
@@ -187,6 +156,62 @@ namespace bnb::oep
             std::string msg = bnb_error_get_message(error);
             bnb_error_destroy(error);
             throw std::runtime_error(msg);
+        }
+    }
+
+    /* effect_player::make_bnb_image */
+    full_image_holder_t* effect_player::make_bnb_image(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bnb_full_image_releaser_t releaser, void* releaser_data)
+    {
+        using ns = bnb::oep::interfaces::image_format;
+        auto bnb_image_format = make_bnb_image_format(image, image_orientation);
+        switch (image->get_image_format()) {
+            case ns::bpc8_rgb:
+            case ns::bpc8_bgr:
+            case ns::bpc8_rgba:
+            case ns::bpc8_bgra:
+            case ns::bpc8_argb:
+                return bnb_full_image_from_bpc8_img_no_copy(
+                    bnb_image_format,
+                    make_bnb_pixel_format(image),
+                    image->get_base_sptr().get(),
+                    image->get_bytes_per_row(),
+                    releaser, releaser_data,
+                    nullptr);
+            case ns::nv12_bt601_full:
+            case ns::nv12_bt601_video:
+            case ns::nv12_bt709_full:
+            case ns::nv12_bt709_video:
+                return bnb_full_image_from_yuv_nv12_img_no_copy_ex(
+                    &bnb_image_format,
+                    make_bnb_yuv_color_range(image),
+                    make_bnb_yuv_color_space(image),
+                    image->get_base_sptr_of_plane(0).get(),
+                    image->get_bytes_per_row_of_plane(0),
+                    image->get_base_sptr_of_plane(1).get(),
+                    image->get_bytes_per_row_of_plane(1),
+                    releaser, releaser_data,
+                    nullptr);
+            case ns::i420_bt601_full:
+            case ns::i420_bt601_video:
+            case ns::i420_bt709_full:
+            case ns::i420_bt709_video:
+                return bnb_full_image_from_yuv_i420_img_no_copy_ex(
+                    &bnb_image_format,
+                    make_bnb_yuv_color_range(image),
+                    make_bnb_yuv_color_space(image),
+                    image->get_base_sptr_of_plane(0).get(),
+                    image->get_bytes_per_row_of_plane(0),
+                    1,
+                    image->get_base_sptr_of_plane(1).get(),
+                    image->get_bytes_per_row_of_plane(1),
+                    1,
+                    image->get_base_sptr_of_plane(2).get(),
+                    image->get_bytes_per_row_of_plane(2),
+                    1,
+                    releaser, releaser_data,
+                    nullptr);
+            default:
+                return nullptr;
         }
     }
 
@@ -235,6 +260,48 @@ namespace bnb::oep
                 break;
         }
         return fmt;
+    }
+
+    /* effect_player::make_bnb_yuv_color_range */
+    bnb_yuv_color_range_t effect_player::make_bnb_yuv_color_range(pixel_buffer_sptr image)
+    {
+        using ns = bnb::oep::interfaces::image_format;
+        switch(image->get_image_format()) {
+            case ns::nv12_bt601_full:
+            case ns::nv12_bt709_full:
+            case ns::i420_bt601_full:
+            case ns::i420_bt709_full:
+                return bnb_yuv_video_range;
+            case ns::nv12_bt601_video:
+            case ns::nv12_bt709_video:
+            case ns::i420_bt601_video:
+            case ns::i420_bt709_video:
+                return bnb_yuv_full_range;
+            default:
+                break;
+        }
+        throw std::runtime_error("No yuv format");
+    }
+
+    /* effect_player::make_bnb_yuv_color_space */
+    bnb_yuv_color_space_t effect_player::make_bnb_yuv_color_space(pixel_buffer_sptr image)
+    {
+        using ns = bnb::oep::interfaces::image_format;
+        switch(image->get_image_format()) {
+            case ns::nv12_bt601_full:
+            case ns::i420_bt601_full:
+            case ns::nv12_bt601_video:
+            case ns::i420_bt601_video:
+                return bnb_bt601;
+            case ns::nv12_bt709_full:
+            case ns::i420_bt709_full:
+            case ns::nv12_bt709_video:
+            case ns::i420_bt709_video:
+                return bnb_bt709;
+            default:
+                break;
+        }
+        throw std::runtime_error("No yuv format");
     }
 
 } /* namespace bnb::oep */

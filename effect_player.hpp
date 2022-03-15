@@ -34,8 +34,13 @@ namespace bnb::oep
         void draw() override;
 
     private:
+        full_image_holder_t* make_bnb_image(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bnb_full_image_releaser_t releaser, void* releaser_data);
+
         bnb_image_format_t make_bnb_image_format(pixel_buffer_sptr image, interfaces::rotation orientation);
         bnb_pixel_format_t make_bnb_pixel_format(pixel_buffer_sptr image);
+        
+        bnb_yuv_color_range_t make_bnb_yuv_color_range(pixel_buffer_sptr image);
+        bnb_yuv_color_space_t make_bnb_yuv_color_space(pixel_buffer_sptr image);
 
     private:
         utility_manager_holder_t * m_utility {nullptr};
