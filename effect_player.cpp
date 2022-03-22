@@ -110,34 +110,25 @@ namespace bnb::oep
     /* effect_player::push_frame */
     void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation)
     {
-        struct releaser_data_t
-        {
-            pixel_buffer_sptr img{nullptr};
-            full_image_holder_t* bnb_img{nullptr};
+        auto releaser = [](void* releaser_user_data) {
+            auto* pixel_buffer_rawptr = reinterpret_cast<pixel_buffer_sptr*>(releaser_user_data);
+            *pixel_buffer_rawptr = nullptr; // Not necessary. The 'delete data;' will do everything for us.
+            delete pixel_buffer_rawptr;
         };
 
-        auto releaser = [](void* releaser_data) {
-            releaser_data_t* data = reinterpret_cast<releaser_data_t*>(releaser_data);
-            data->img = nullptr; // Not necessary. The 'delete data;' will do everything for us.
-            bnb_full_image_release(data->bnb_img, nullptr);
-            delete data;
-        };
-
-        releaser_data_t* releaser_data_ptr = new releaser_data_t;
-        releaser_data_ptr->img = image;
-
-        full_image_holder_t * bnb_image = make_bnb_image(image, image_orientation, releaser, reinterpret_cast<void*>(releaser_data_ptr));
-
-        releaser_data_ptr->bnb_img = bnb_image;
+        auto* pixel_buffer_rawptr = new pixel_buffer_sptr(image);
+        auto* releaser_user_data = reinterpret_cast<void*>(pixel_buffer_rawptr);
+        auto* bnb_image = make_bnb_image(image, image_orientation, releaser, releaser_user_data);
 
         if (!bnb_image) {
             throw std::runtime_error("no image was created");
         }
 
-        bnb_error * error{nullptr};
+        bnb_error* error{nullptr};
         bnb_effect_player_push_frame(m_ep, bnb_image, &error);
+        bnb_full_image_release(bnb_image, nullptr);
+
         if (error) {
-            bnb_full_image_release(bnb_image, nullptr);
             std::string msg = bnb_error_get_message(error);
             bnb_error_destroy(error);
             throw std::runtime_error(msg);
@@ -147,7 +138,7 @@ namespace bnb::oep
     /* effect_player::draw */
     void effect_player::draw()
     {
-        bnb_error * error{nullptr};
+        bnb_error* error{nullptr};
         while (bnb_effect_player_draw(m_ep, &error) < 0) {
             std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -160,7 +151,7 @@ namespace bnb::oep
     }
 
     /* effect_player::make_bnb_image */
-    full_image_holder_t* effect_player::make_bnb_image(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bnb_full_image_releaser_t releaser, void* releaser_data)
+    full_image_holder_t* effect_player::make_bnb_image(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bnb_full_image_data_releaser_t releaser, void* releaser_data)
     {
         using ns = bnb::oep::interfaces::image_format;
         auto bnb_image_format = make_bnb_image_format(image, image_orientation);
