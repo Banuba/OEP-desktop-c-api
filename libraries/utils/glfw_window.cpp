@@ -1,8 +1,8 @@
 #include "glfw_window.hpp"
 
-#include <bnb/utility_manager.h>
 #include <glad/glad.h>
 
+using namespace bnb::gl;
 
 glfw_window::glfw_window(const std::string& title, GLFWwindow* share)
 {
@@ -46,7 +46,8 @@ void glfw_window::show(uint32_t width_hint, uint32_t height_hint)
             glfwSetWindowSize(m_window, width_hint, height_hint);
             glfwSetWindowPos(m_window, 100, 100);
             glfwShowWindow(m_window);
-        });
+        }
+    );
 
     glfwPostEmptyEvent();
 }
@@ -110,7 +111,8 @@ void glfw_window::create_window(const std::string& title, GLFWwindow* share)
         initial_window_height,
         title.c_str(),
         nullptr,
-        share);
+        share
+    );
 
     if (nullptr == m_window) {
         throw std::runtime_error("glfwCreateWindow error");
@@ -128,7 +130,7 @@ void glfw_window::load_glad_functions()
 {
 #if BNB_OS_WINDOWS || BNB_OS_MACOS
     // it's only need for use while working with dynamic libs
-    utility::load_glad_functions((GLADloadproc) glfwGetProcAddress);
+    utility::load_gl_functions();
 #endif
 
     if (0 == gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
