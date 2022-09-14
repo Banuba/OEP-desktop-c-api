@@ -11,15 +11,15 @@ set(BNB_THIRD_FOLDER ${CMAKE_CURRENT_LIST_DIR}/third)
 if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_ENABLE_EXTENDED_ALIGNED_STORAGE")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+
+    # Set to OFF to disable ffmpeg dependency (SDK should be built with disabled video_player also)
+    set(BNB_VIDEO_PLAYER ON)
+
+    add_definitions(
+        -DBNB_RESOURCES_FOLDER="${BNB_RESOURCES_FOLDER}"
+        -DBNB_VIDEO_PLAYER=$<BOOL:${BNB_VIDEO_PLAYER}>
+    )
 endif()
-
-# Set to OFF to disable ffmpeg dependency (SDK should be built with disabled video_player also)
-set(BNB_VIDEO_PLAYER ON)
-
-add_definitions(
-    -DBNB_RESOURCES_FOLDER="${BNB_RESOURCES_FOLDER}"
-    -DBNB_VIDEO_PLAYER=$<BOOL:${BNB_VIDEO_PLAYER}>
-)
 
 #
 # Main
@@ -32,7 +32,6 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/oep)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libraries)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bnb_sdk_c_api)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third)
-
 
 option(DEPLOY_BUILD "Build for deployment" OFF)
 
@@ -54,10 +53,7 @@ else (APPLE)
 endif (APPLE)
 
 target_link_libraries(example
-    glfw
-    glfw_utils
     bnb_effect_player
-    opencv
     renderer
     camera
     # below OEP targets
@@ -68,19 +64,20 @@ target_link_libraries(example
 )
 
 if (APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
+
+    set(EXAMPLE_BUNDLE_NAME "Banuba Offscreen Rendering Example") # This name can contain up to 15 characters according to Apple's documentation
+    set(EXAMPLE_COPYRIGHT "© 2021 Banuba. All rights reserved.")
+    set(EXAMPLE_INFO "Banuba Offscreen Rendering Example.")
 
     set(EXAMPLE_RESOURCES ${BNB_RESOURCES_FOLDER}/mac/bnb_viewer.icns)
     target_sources(example PRIVATE
         ${EXAMPLE_RESOURCES}
     )
-    set(EXAMPLE_BUNDLE_NAME "Banuba Offscreen Rendering Example") # This name can contain up to 15 characters according to Apple's documentation
-    set(EXAMPLE_COPYRIGHT "© 2021 Banuba. All rights reserved.")
-    set(EXAMPLE_INFO "Banuba Offscreen Rendering Example.")
 
     set_target_properties(example PROPERTIES
         OUTPUT_NAME ${EXAMPLE_BUNDLE_NAME}
-        RESOURCE ${EXAMPLE_RESOURCES}
+        RESOURCE "${EXAMPLE_RESOURCES}"
         MACOSX_BUNDLE TRUE
 
         # The same as stadrard MacOSXBundleInfo.plist.in from CMake but with camera permissions added
