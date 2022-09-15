@@ -1,5 +1,6 @@
 #include "glfw_window.hpp"
 
+#include <stdexcept>
 #include <glad/glad.h>
 
 using namespace bnb::gl;

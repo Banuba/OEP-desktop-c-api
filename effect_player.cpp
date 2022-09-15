@@ -92,13 +92,10 @@ namespace bnb::oep
                 bnb_effect_eval_js(effect, script.c_str(), nullptr, nullptr);
             } else {
                 std::cout << "[Error] effect not loaded" << std::endl;
-                return false;
             }
         } else {
             std::cout << "[Error] effect manager not initialized" << std::endl;
-            return false;
         }
-        return true;
     }
 
     /* effect_player::pause */

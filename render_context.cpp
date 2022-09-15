@@ -1,5 +1,7 @@
 #include "render_context.hpp"
 
+#include <stdexcept>
+
 #include <bnb/effect_player.h>
 #include <glad/glad.h>
 
