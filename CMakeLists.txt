@@ -33,6 +33,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/copy_libs.cmake)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/oep)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libraries)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bnb_sdk_c_api)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third)
 
 option(DEPLOY_BUILD "Build for deployment" OFF)
 
