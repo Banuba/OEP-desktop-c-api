@@ -6,7 +6,6 @@ file(GLOB_RECURSE srcs
 add_library(glfw_utils STATIC ${srcs})
 
 target_link_libraries(glfw_utils
-    Async++
     glad
     glfw
 )

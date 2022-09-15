@@ -13,7 +13,8 @@ if (APPLE)
     set_target_properties(camera PROPERTIES XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC "YES")
 
     target_sources(camera PUBLIC ${apple_srcs})
-    target_link_libraries(camera
+    target_link_libraries(camera INTERFACE
+        "-framework QuartzCore"
         "-framework AVFoundation"
         "-framework CoreMedia"
     )

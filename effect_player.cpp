@@ -17,7 +17,7 @@ namespace bnb::oep
     effect_player::effect_player(int32_t width, int32_t height)
     {
         // This particular example relies on OpenGL, so it should be explicitly requested
-        bnb_effect_player_set_render_backend(bnb_render_backend_opengl, &error);
+        bnb_effect_player_set_render_backend(bnb_render_backend_opengl, nullptr);
 
         bnb_effect_player_configuration_t ep_cfg{width, height, bnb_nn_mode_enable, bnb_good, false, false};
         m_ep = bnb_effect_player_create(&ep_cfg, nullptr);
@@ -39,6 +39,7 @@ namespace bnb::oep
     void effect_player::surface_created(int32_t width, int32_t height)
     {
         bnb_effect_player_surface_created(m_ep, width, height, nullptr);
+        surface_changed(width, height);
     }
 
     /* effect_player::surface_changed */
@@ -88,7 +89,7 @@ namespace bnb::oep
     {
         if (auto e_manager = bnb_effect_player_get_effect_manager(m_ep, nullptr)) {
             if (auto effect = bnb_effect_manager_get_current_effect(e_manager, nullptr)) {
-                //bnb_effect_eval_js(effect, script.c_str(), result_callback, nullptr);
+                bnb_effect_eval_js(effect, script.c_str(), nullptr, nullptr);
             } else {
                 std::cout << "[Error] effect not loaded" << std::endl;
                 return false;
@@ -121,7 +122,7 @@ namespace bnb::oep
     /* effect_player::push_frame */
     void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bool require_mirroring)
     {
-        full_image_holder_t * bnb_image {nullptr};
+        full_image_holder_t* bnb_image {nullptr};
 
         using ns = bnb::oep::interfaces::image_format;
         auto bnb_image_format = make_bnb_image_format(image, image_orientation, require_mirroring);

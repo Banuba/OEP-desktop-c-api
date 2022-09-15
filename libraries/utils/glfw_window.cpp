@@ -40,23 +40,15 @@ void glfw_window::show(uint32_t width_hint, uint32_t height_hint)
     window_width = width_hint;
     window_height = height_hint;
 
-    async::spawn(
-        m_scheduler,
-        [this, width_hint, height_hint]() {
-            glfwSetWindowSize(m_window, width_hint, height_hint);
-            glfwSetWindowPos(m_window, 100, 100);
-            glfwShowWindow(m_window);
-        }
-    );
-
-    glfwPostEmptyEvent();
+    glfwSetWindowSize(m_window, width_hint, height_hint);
+    glfwSetWindowPos(m_window, 100, 100);
+    glfwShowWindow(m_window);
 }
 
 void glfw_window::run_main_loop()
 {
     while (!glfwWindowShouldClose(m_window)) {
         glfwWaitEvents();
-        m_scheduler.run_all_tasks();
 
         if (surface_changed_callback && resized) {
             int32_t buffer_width, buffer_height;

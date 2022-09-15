@@ -1,7 +1,7 @@
 #include "render_context.hpp"
 
-#include <bnb/utility_manager.h>
 #include <bnb/effect_player.h>
+#include <glad/glad.h>
 
 namespace bnb::oep
 {
@@ -24,7 +24,7 @@ namespace bnb::oep
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         m_context = glfwCreateWindow(1, 1, "", nullptr, nullptr);
         if (!m_context) {
             throw std::runtime_error("glfwCreateWindow() error");
@@ -41,6 +41,9 @@ namespace bnb::oep
     void render_context::create_context()
     {
         glfwMakeContextCurrent(m_context);
+        if (0 == gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+            throw std::runtime_error("gladLoadGLLoader error");
+        }
         bnb_error * error {nullptr};
         bnb_effect_player_load_gl_functions(&error);
         if (error) {

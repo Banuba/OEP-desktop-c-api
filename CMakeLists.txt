@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BNB_RESOURCES_FOLDER ${CMAKE_CURRENT_LIST_DIR}/resources)
 set(BNB_THIRD_FOLDER ${CMAKE_CURRENT_LIST_DIR}/third)
 
+add_definitions(
+    -DBNB_RESOURCES_FOLDER="${BNB_RESOURCES_FOLDER}"
+)
 if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_ENABLE_EXTENDED_ALIGNED_STORAGE")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_ENABLE_EXTENDED_ALIGNED_STORAGE")
@@ -16,7 +19,6 @@ if(WIN32)
     set(BNB_VIDEO_PLAYER ON)
 
     add_definitions(
-        -DBNB_RESOURCES_FOLDER="${BNB_RESOURCES_FOLDER}"
         -DBNB_VIDEO_PLAYER=$<BOOL:${BNB_VIDEO_PLAYER}>
     )
 endif()
@@ -31,7 +33,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/copy_libs.cmake)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/oep)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libraries)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bnb_sdk_c_api)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third)
 
 option(DEPLOY_BUILD "Build for deployment" OFF)
 
@@ -56,6 +57,7 @@ target_link_libraries(example
     bnb_effect_player
     renderer
     camera
+    opencv
     # below OEP targets
     bnb_oep_pixel_buffer_target
     bnb_oep_image_processing_result_target
@@ -64,7 +66,7 @@ target_link_libraries(example
 )
 
 if (APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
 
     set(EXAMPLE_BUNDLE_NAME "Banuba Offscreen Rendering Example") # This name can contain up to 15 characters according to Apple's documentation
     set(EXAMPLE_COPYRIGHT "© 2021 Banuba. All rights reserved.")

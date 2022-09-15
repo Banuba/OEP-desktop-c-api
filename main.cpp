@@ -1,9 +1,9 @@
 #include <interfaces/offscreen_effect_player.hpp>
 
-#include "libraries/camera/camera.hpp"
 #include "render_context.hpp"
 #include "effect_player.hpp"
 #include "glfw_user_data.hpp"
+#include "libraries/renderer/renderer.hpp"
 
 #include <bnb/utility_manager.h>
 #include <algorithm>
@@ -37,17 +37,15 @@ int main()
 
     dirs.push_back(std::string(path) + "/Contents/Frameworks/BanubaEffectPlayer.framework/Resources/bnb-resources");
     dirs.push_back(std::string(path) + "/Contents/Resources");
-#else
-    dirs.push_back(BNB_RESOURCES_FOLDER);
 #endif
+    dirs.push_back(BNB_RESOURCES_FOLDER);
 
     // The usage of this class is necessary in order to properly initialize and deinitialize Banuba SDK
-    //bnb::utility m_utility(dirs, BNB_CLIENT_TOKEN);
-    std::unique_ptr<const char*[]> res_paths = std::make_unique<const char*[]>(path_to_resources.size() + 1);
+    std::unique_ptr<const char*[]> res_paths = std::make_unique<const char*[]>(dirs.size() + 1);
     std::transform(dirs.begin(), dirs.end(), res_paths.get(), [](const auto& s) { return s.c_str(); });
     res_paths.get()[dirs.size()] = nullptr;
     utility_manager_holder_t * m_utility {nullptr};
-    m_utility = bnb_utility_manager_init(res_paths.get(), client_token.c_str(), nullptr);
+    m_utility = bnb_utility_manager_init(res_paths.get(), BNB_CLIENT_TOKEN, nullptr);
 
     // Create instance of render_context.
     // NOTE: each instance of Offscreen Render Target should have its own instance of Render Context
@@ -70,13 +68,13 @@ int main()
     // We want to share resources between context, we know that render_context is based on
     // GLFW and returned context is GLFWwindow
     window = std::make_shared<bnb::gl::glfw_window>("OEP Example", reinterpret_cast<GLFWwindow*>(rc->get_sharing_context()));
-    render_t_sptr render_t = std::make_shared<bnb::render::render_thread>(window->get_window(), oep_width, oep_height);
+    auto render_t = std::make_shared<bnb::render::renderer>();
 
     oep->load_effect(<#Place the effect name here, e.g. effects/test_BG#>);
 
     // Callback for received frame from the camera
-    auto camera_callback = [weak_oep = std::weak_ptr<decltype(oep)::element_type>(oep),
-        weak_render_t = std::weak_ptr<decltype(render_t)::element_type>(render_t)](bnb::full_image_t image) {
+    auto camera_callback = [rc, weak_oep = std::weak_ptr<decltype(oep)::element_type>(oep),
+        weak_render_t = std::weak_ptr<decltype(render_t)::element_type>(render_t)](pixel_buffer_sptr image) {
         auto oep = weak_oep.lock();
         auto render_t = weak_render_t.lock();
         if (!oep || !render_t) {
@@ -89,7 +87,7 @@ int main()
                 auto render_callback = [render_t](std::optional<rendered_texture_t> texture_id) {
                     if (texture_id.has_value()) {
                         auto gl_texture = static_cast<GLuint>(reinterpret_cast<int64_t>(*texture_id));
-                        render_t->update_data(gl_texture);
+                        render_t->update_texture(gl_texture);
                     }
                 };
                 // Get texture id from shared context and render it
@@ -97,12 +95,8 @@ int main()
             }
         };
 
-        // Convert bnb full_image_t to OEP pixel_buffer
-        // This function just wraps data from one type to another, without doing any manipulations with
-        // the data itself, and without copying it
-        auto pb_image = bnb::camera_utils::full_image_to_pixel_buffer(image);
         // Start image processing
-        oep->process_image_async(pb_image, bnb::oep::interfaces::rotation::deg0, false, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg0);
+        oep->process_image_async(image, bnb::oep::interfaces::rotation::deg180, false, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg0);
     };
     // Create and run instance of camera, pass callback for frames
     auto camera_ptr = bnb::camera::create(camera_callback, 0);
@@ -130,7 +124,7 @@ int main()
             if (auto oep = ud->oep()) {
                 // If key pressed when oep unstopped
                 if (ud->camera_ptr().get() == nullptr) {
-                    ud->camera_ptr() = bnb::camera::create((ud->push_frame_cb(), 0);
+                    ud->camera_ptr() = bnb::camera::create(ud->push_frame_cb(), 0);
                     oep->resume();
                 }
             }
@@ -152,13 +146,15 @@ int main()
             return;
         }
         if (auto render_t = ud->render_target(); render_t.get()) {
-            render_t->surface_changed(w, h);
+            render_t->surface_changed(w_glfw_buffer, h_glfw_buffer);
         }
         if (auto oep = ud->oep(); oep.get()) {
             oep->surface_changed(w, h);
         }
     });
+
     window->show(oep_width, oep_height);
+    render_t->start_auto_rendering(window->get_window());
     window->run_main_loop();
 
     return 0;
