@@ -2,10 +2,14 @@
 
 > **Important**
 >
->[master](../../tree/master) branch is always compatible with latest SDK version. Please use [v0.x](../../tree/v0.x) branch for SDK version 0.x (e.g. v0.38).
+> [master](../../tree/master) branch is always compatible with latest SDK version. Please use [v0.x](../../tree/v0.x) branch for SDK version 0.x (e.g. v0.38).
 
 ## Getting Started
 
+0. Clone the project to your computer:
+    ```sh
+        git clone --recursive https://github.com/Banuba/OEP-desktop-c-api.git
+    ```
 1. Get the latest Banuba SDK archive for macOS/Windows and the client token. Please fill out our form at [form at banuba.com](https://www.banuba.com/face-filters-sdk) website, or contact us via [info@banuba.com](mailto:info@banuba.com).
 2. Extract Banuba SDK **C API** archive into the `OEP-desktop-c-api/bnb_sdk_c_api` dir:
     `bnb_sdk_c_api/` => `OEP-desktop-c-api/bnb_sdk_c_api`
@@ -13,6 +17,11 @@
     `bnb_viewer_standalone/resources/` => `OEP-desktop-c-api/resources`
 4. Copy `bnb_viewer_standalone/third` files into the `OEP-desktop-c-api/third` dir:
     `bnb_viewer_standalone/third/` => `OEP-desktop-c-api/third`
+
+    NOTE: The Windows sample depends on the following third-party libraries:
+      - `glfw` - provides OGL context and application window
+      - `openal` - sound library used by the BanubaSDK
+      - `ffmpeg` - used by video player to play video as a [background replacement](https://docs.banuba.com/face-ar-sdk-v1/overview/technical_specification#video-formats-support). 
 5. Copy and Paste your client token into the appropriate section of `OEP-desktop-c-api/main.cpp`
 6. Generate project files by executing the following commands:
 
@@ -20,7 +29,6 @@
 
     ```bat
         cd %path_to_repository%
-        git submodule update --init
         md build
         cd build
         cmake -A Win32 ..
@@ -30,7 +38,6 @@
 
     ```bat
         cd %path_to_repository%
-        git submodule update --init
         md build
         cd build
         cmake -A x64 ..
@@ -40,13 +47,12 @@
 
     ```sh
         cd $path_to_repository
-        git submodule update --init
         mkdir build
         cd build
         cmake -G Xcode ..
     ```
 
-7. The previous step will generate a Xcode project for macOS and a Visual Studio project for Windows. Open the viewer_standalone project in an appropriate IDE on your platform.
+7. The previous step will generate a Xcode project for macOS and a Visual Studio project for Windows. Open the **offscreen_effect_player-desktop-c-api** project in an appropriate IDE on your platform.
 8. Select target `example`.
 9. Run build.
 
@@ -64,11 +70,9 @@ Contributions are what make the open source community such an amazing place to l
 
 - **oep** - is a submodule of the offscreen effect player
 - **libraries**
+  - **glad** -  OpenGL loader
   - **renderer** - used only to demonstrate how to work with offscreen_effect_player. Draws received frames to the specified GLFW window
-  - **utils**
-    - **glfw_utils** - contains helper classes to work with GLFW
-    - **ogl_utils** - contains helper classes to work with Open GL
-    - **utils** - contains common helper classes such as thread_pool
+  - **utils** - wrapper for GLFW
 - **main.cpp** - contains the main function implementation, demonstrating basic pipeline for frame processing to apply effect offscreen
 - **effect_player.cpp, effect_player.hpp** - contains the custom implementation of the effect_player interface with using cpp api
 - **render_context.cpp, render_context.hpp** - contains the custom implementation of the render_context interface with using GLFW
@@ -76,18 +80,16 @@ Contributions are what make the open source community such an amazing place to l
 ## How to change an effect
 
 1. Open `OEP-desktop-c-api/main.cpp`
-2. On line 87 find:
+2. On line 73 find:
 
    ```c++
-   try {
-       play_effect("effects/Afro");
-   }
+       oep->load_effect("effects/Afro");
    ```
 
-3. Write the effect name that you want to run. For example: ("effects/your_effect_name")
+3. Write the effect name that you want to run. For example: oep->load_effect("effects/your_effect_name")
 
 *Note:* The effect must be in `OEP-desktop-c-api-master/resources/effect`.
 
 ## Integration note
 
-For integration of the Offscreen Effect player to your application it is necessary to copy the oep folder and implement interfaces for effect_player and render_context, but if your application is based on the GLFW library and using bnb_effect_player cpp api, you can just reuse current implementation.
+For the integration of the Offscreen Effect player into your application, it is necessary to copy the OEP folder and implement interfaces for effect_player and render_context, but if your application is based on the GLFW library and using bnb_effect_player CPP API, you can just reuse the current implementation.

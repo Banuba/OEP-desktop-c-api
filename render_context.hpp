@@ -1,8 +1,7 @@
 #pragma once
 
 #include <interfaces/render_context.hpp>
-#include "glfw_window.hpp"
-#include "render_thread.hpp"
+#include "libraries/utils/glfw_window.hpp"
 
 namespace bnb::oep
 {

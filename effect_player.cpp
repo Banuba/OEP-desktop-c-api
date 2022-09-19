@@ -1,33 +1,25 @@
 #include "effect_player.hpp"
 
 #include <iostream>
-#include <thread>
 #include <optional>
 #include <iostream>
-#include <algorithm>
 
 namespace bnb::oep
 {
 
     /* effect_player::create */
-    effect_player_sptr interfaces::effect_player::create(const std::vector<std::string>& path_to_resources, const std::string& client_token)
+    effect_player_sptr interfaces::effect_player::create(int32_t width, int32_t height)
     {
-        return std::make_shared<bnb::oep::effect_player>(path_to_resources, client_token);
+        return std::make_shared<bnb::oep::effect_player>(width, height);
     }
 
     /* effect_player::effect_player CONSTRUCTOR */
-    effect_player::effect_player(const std::vector<std::string>& path_to_resources, const std::string& client_token)
+    effect_player::effect_player(int32_t width, int32_t height)
     {
-        bnb_error* error = nullptr;
-        std::unique_ptr<const char*[]> res_paths = std::make_unique<const char*[]>(path_to_resources.size() + 1);
-        std::transform(path_to_resources.begin(), path_to_resources.end(), res_paths.get(), [](const auto& s) { return s.c_str(); });
-        res_paths.get()[path_to_resources.size()] = nullptr;
-        m_utility = bnb_utility_manager_init(res_paths.get(), client_token.c_str(), nullptr);
-
         // This particular example relies on OpenGL, so it should be explicitly requested
-        bnb_effect_player_set_render_backend(bnb_render_backend_opengl, &error);
+        bnb_effect_player_set_render_backend(bnb_render_backend_opengl, nullptr);
 
-        bnb_effect_player_configuration_t ep_cfg{1, 1, bnb_nn_mode_enable, bnb_good, false, false};
+        bnb_effect_player_configuration_t ep_cfg{width, height, bnb_nn_mode_enable, bnb_good, false, false};
         m_ep = bnb_effect_player_create(&ep_cfg, nullptr);
         if (m_ep == nullptr) {
             throw std::runtime_error("Failed to create effect player holder.");
@@ -41,16 +33,13 @@ namespace bnb::oep
             bnb_effect_player_destroy(m_ep, nullptr);
             m_ep = nullptr;
         }
-        if (m_utility) {
-            bnb_utility_manager_release(m_utility, nullptr);
-            m_utility = nullptr;
-        }
     }
 
     /* effect_player::surface_created */
     void effect_player::surface_created(int32_t width, int32_t height)
     {
         bnb_effect_player_surface_created(m_ep, width, height, nullptr);
+        surface_changed(width, height);
     }
 
     /* effect_player::surface_changed */
@@ -95,6 +84,20 @@ namespace bnb::oep
         return true;
     }
 
+    /* effect_player::eval_js */
+    void effect_player::eval_js(const std::string& script, oep_eval_js_result_cb result_callback)
+    {
+        if (auto e_manager = bnb_effect_player_get_effect_manager(m_ep, nullptr)) {
+            if (auto effect = bnb_effect_manager_get_current_effect(e_manager, nullptr)) {
+                bnb_effect_eval_js(effect, script.c_str(), nullptr, nullptr);
+            } else {
+                std::cout << "[Error] effect not loaded" << std::endl;
+            }
+        } else {
+            std::cout << "[Error] effect manager not initialized" << std::endl;
+        }
+    }
+
     /* effect_player::pause */
     void effect_player::pause()
     {
@@ -107,13 +110,19 @@ namespace bnb::oep
         bnb_effect_player_playback_play(m_ep, nullptr);
     }
 
-    /* effect_player::push_frame */
-    void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation)
+    /* effect_player::stop */
+    void effect_player::stop()
     {
-        full_image_holder_t * bnb_image {nullptr};
+        bnb_effect_player_playback_stop(m_ep, nullptr);
+    }
+
+    /* effect_player::push_frame */
+    void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bool require_mirroring)
+    {
+        full_image_holder_t* bnb_image {nullptr};
 
         using ns = bnb::oep::interfaces::image_format;
-        auto bnb_image_format = make_bnb_image_format(image, image_orientation);
+        auto bnb_image_format = make_bnb_image_format(image, image_orientation, require_mirroring);
         switch (image->get_image_format()) {
             case ns::bpc8_rgb:
             case ns::bpc8_bgr:
@@ -176,22 +185,20 @@ namespace bnb::oep
     }
 
     /* effect_player::draw */
-    void effect_player::draw()
+    int64_t effect_player::draw()
     {
-        bnb_error * error{nullptr};
-        while (bnb_effect_player_draw(m_ep, &error) < 0) {
-            std::this_thread::yield();
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
+        bnb_error* error{nullptr};
+        int64_t result = bnb_effect_player_draw(m_ep, &error);
         if (error) {
             std::string msg = bnb_error_get_message(error);
             bnb_error_destroy(error);
             throw std::runtime_error(msg);
         }
+        return result;
     }
 
     /* effect_player::make_bnb_image_format */
-    bnb_image_format_t effect_player::make_bnb_image_format(pixel_buffer_sptr image, interfaces::rotation orientation)
+    bnb_image_format_t effect_player::make_bnb_image_format(pixel_buffer_sptr image, interfaces::rotation orientation, bool require_mirroring)
     {
         bnb_image_orientation_t camera_orient {BNB_DEG_0};
         using ns = bnb::oep::interfaces::rotation;
@@ -208,7 +215,7 @@ namespace bnb::oep
                 camera_orient = BNB_DEG_270;
                 break;
         }
-        return {static_cast<uint32_t>(image->get_width()), static_cast<uint32_t>(image->get_height()), camera_orient, false, 0};
+        return {static_cast<uint32_t>(image->get_width()), static_cast<uint32_t>(image->get_height()), camera_orient, require_mirroring, 0};
     }
 
     /* effect_player::make_bnb_pixel_format */
