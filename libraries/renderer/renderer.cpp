@@ -28,6 +28,9 @@ void renderer::start_auto_rendering(GLFWwindow* window)
 {
     auto thread_func = [this, window]() {
         using namespace std::chrono_literals;
+        if (m_auto_rendering_is_running) {
+            throw std::runtime_error("auto rendering already is runing");
+        }
         m_auto_rendering_is_running = true;
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
@@ -71,26 +74,27 @@ void renderer::initialize()
         "precision highp float;\n "
         "layout (location = 0) in vec3 aPos;\n"
         "layout (location = 1) in vec2 aTexCoord;\n"
-        "out vec2 TexCoord;\n"
+        "out vec2 vTexCoord;\n"
         "void main() {\n"
         "  gl_Position = vec4(aPos, 1.0);\n"
-        "   TexCoord = aTexCoord;\n"
+        "  vTexCoord = aTexCoord;\n"
         "}\n";
 
     static const char* fragment_shader_program =
         "precision highp float;\n"
-        "in vec2 TexCoord;\n"
+        "in vec2 vTexCoord;\n"
         "out vec4 FragColor;\n"
         "uniform sampler2D uTexture;\n"
         "void main() {\n"
-        "  FragColor = texture(uTexture, TexCoord);\n"
+        "  FragColor = texture(uTexture, vTexCoord);\n"
         "}\n";
 
     static const float drawing_plane_coords[] = {
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        -1.0f,  1.0f, 0.0f, 0.0f, 0.0f, // top left
-         1.0f, -1.0f, 0.0f, 1.0f, 1.0f, // bottom right
-         1.0f,  1.0f, 0.0f, 1.0f, 0.0f, // top right
+        /* verical flip 0 rotation 0deg */
+        1.0f, 1.0f, 0.0f, 1.0f, 0.0f,  /* top right */
+        1.0f, -1.0f, 0.0f, 1.0f, 1.0f,  /* bottom right */
+        -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, /* top left */
+        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, /* bottom left */
     };
     // clang-format on
 

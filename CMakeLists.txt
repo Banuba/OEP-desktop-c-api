@@ -58,7 +58,6 @@ target_link_libraries(example
     bnb_effect_player
     renderer
     camera
-    opencv
     # below OEP targets
     bnb_oep_pixel_buffer_target
     bnb_oep_image_processing_result_target

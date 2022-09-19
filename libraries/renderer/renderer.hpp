@@ -52,7 +52,6 @@ namespace bnb::render
         GLuint m_vao {0};
         GLuint m_vbo {0};
 
-        std::atomic_bool m_rendering {false};
         std::atomic_bool m_auto_rendering_is_running {false};
         std::atomic_bool m_texture_updated {false};
         std::atomic_bool m_surface_changed {false};
