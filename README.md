@@ -1,4 +1,6 @@
-# Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba.com/face-ar-sdk/core/effect_player/) in C++ apps
+# WARNING: This is example is deprecated an unmaintained now. Use [C++ example](https://github.com/Banuba/OEP-desktop) instead.
+
+## Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba.com/face-ar-sdk/core/effect_player/) in C++ apps
 
 > **Important**
 >
