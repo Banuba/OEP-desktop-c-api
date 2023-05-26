@@ -1,22 +1,14 @@
-# WARNING: This is example is deprecated an unmaintained now. Use [C++ example](https://github.com/Banuba/OEP-desktop) instead.
-
 ## Quick start examples for integrating [Banuba SDK on Desktop](https://docs.banuba.com/face-ar-sdk/core/effect_player/) in C++ apps
-
-> **Important**
->
->[master](../../tree/master) branch is always compatible with latest SDK version. Please use [v0.x](../../tree/v0.x) branch for SDK version 0.x (e.g. v0.38).
 
 ## Getting Started
 
 1. Get the latest Banuba SDK archive for macOS/Windows and the client token. Please fill out our form at [form at banuba.com](https://www.banuba.com/face-filters-sdk) website, or contact us via [info@banuba.com](mailto:info@banuba.com).
 2. Extract Banuba SDK **C API** archive into the `OEP-desktop-c-api/bnb_sdk_c_api` dir:
     `bnb_sdk_c_api/` => `OEP-desktop-c-api/bnb_sdk_c_api`
-3. Copy `bnb_viewer_standalone/resources/` files into the `OEP-desktop-c-api/resources` dir:
+3. Windows Only: copy `bnb_viewer_standalone/resources/` files into the `OEP-desktop-c-api/resources` dir:
     `bnb_viewer_standalone/resources/` => `OEP-desktop-c-api/resources`
-4. Copy `bnb_viewer_standalone/third` files into the `OEP-desktop-c-api/third` dir:
-    `bnb_viewer_standalone/third/` => `OEP-desktop-c-api/third`
-5. Copy and Paste your client token into the appropriate section of `OEP-desktop-c-api/main.cpp`
-6. Generate project files by executing the following commands:
+4. Copy and Paste your client token into the appropriate section of `OEP-desktop-c-api/main.cpp`
+5. Generate project files by executing the following commands:
 
     ##### Windows x86 build:
 

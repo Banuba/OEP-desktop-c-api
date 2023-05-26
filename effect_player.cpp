@@ -8,13 +8,6 @@
 
 namespace bnb::oep
 {
-
-    /* effect_player::create */
-    effect_player_sptr interfaces::effect_player::create(const std::vector<std::string>& path_to_resources, const std::string& client_token)
-    {
-        return std::make_shared<bnb::oep::effect_player>(path_to_resources, client_token);
-    }
-
     /* effect_player::effect_player CONSTRUCTOR */
     effect_player::effect_player(const std::vector<std::string>& path_to_resources, const std::string& client_token)
     {
@@ -108,7 +101,7 @@ namespace bnb::oep
     }
 
     /* effect_player::push_frame */
-    void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation)
+    void effect_player::push_frame(pixel_buffer_sptr image, bnb::oep::interfaces::rotation image_orientation, bool require_mirroring)
     {
         full_image_holder_t * bnb_image {nullptr};
 
@@ -176,10 +169,11 @@ namespace bnb::oep
     }
 
     /* effect_player::draw */
-    void effect_player::draw()
+    int64_t effect_player::draw()
     {
         bnb_error * error{nullptr};
-        while (bnb_effect_player_draw(m_ep, &error) < 0) {
+        int64_t ret;
+        while ((ret = bnb_effect_player_draw(m_ep, &error)) < 0) {
             std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
@@ -188,6 +182,7 @@ namespace bnb::oep
             bnb_error_destroy(error);
             throw std::runtime_error(msg);
         }
+        return ret;
     }
 
     /* effect_player::make_bnb_image_format */
@@ -235,6 +230,16 @@ namespace bnb::oep
                 break;
         }
         return fmt;
+    }
+    
+    void effect_player::eval_js(const std::string& script, oep_eval_js_result_cb result_callback)
+    {
+    
+    }
+
+    void effect_player::stop()
+    {
+    
     }
 
 } /* namespace bnb::oep */

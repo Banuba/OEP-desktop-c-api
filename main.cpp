@@ -23,7 +23,7 @@ void play_effect(const std::string& effect_name)
 
     // Create an instance of effect_player implementation with cpp api, pass path to location of
     // effects and client token
-    auto ep = bnb::oep::interfaces::effect_player::create({BNB_RESOURCES_FOLDER}, BNB_CLIENT_TOKEN);
+    auto ep = std::make_shared<bnb::oep::effect_player>(std::vector({std::string(BNB_RESOURCES_FOLDER)}), std::string(BNB_CLIENT_TOKEN));
 
     // Create instance of offscreen_effect_player, pass effect_player, offscreen_render_target
     // and dimension of processing frame (for best performance it is better to coincide
@@ -62,7 +62,7 @@ void play_effect(const std::string& effect_name)
             }
         };
 
-        oep->process_image_async(image, bnb::oep::interfaces::rotation::deg0, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg180);
+        oep->process_image_async(image, bnb::oep::interfaces::rotation::deg0, false, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg180);
     };
     auto m_camera_ptr = bnb::camera::create(ef_cb, 0);
 
