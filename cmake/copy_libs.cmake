@@ -12,6 +12,19 @@ function(copy_sdk target)
                 $<TARGET_FILE_DIR:${target}>
             COMMENT "Copy banuba dynamic libs"
         )
+    elseif (APPLE)
+        # copy BNBEffectPlayerC.framework to app bundle
+        add_custom_command(TARGET ${target}
+            POST_BUILD                     
+            COMMAND 
+                rm -rf $<TARGET_FILE_DIR:${target}>/../Frameworks
+                &&
+                mkdir -p $<TARGET_FILE_DIR:${target}>/../Frameworks
+                &&    
+                cp -rfP 
+                    ${CMAKE_SOURCE_DIR}/bnb_sdk_c_api/mac/$<CONFIG>/BNBEffectPlayerC.framework
+                    $<TARGET_FILE_DIR:${target}>/../Frameworks
+        )
     endif ()
 endfunction()
 
@@ -19,17 +32,15 @@ function(copy_third target)
     if (NOT MSVC)
         return()
     endif ()
-    set(IS_WIN64 $<EQUAL:${CMAKE_SIZEOF_VOID_P},8>)
-    set(DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
+
+    set(ARCH_SUFFIX 64)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(ARCH_SUFFIX 32)
+    endif ()
 
     # FFPMEG
-
     if (BNB_VIDEO_PLAYER)
-        set(FFMPEG_ARCH_SUFFIX 64)
-        if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-            set(FFMPEG_ARCH_SUFFIX 32)
-        endif ()
-        set(FFMPEG_BIN_DIR "${BNB_THIRD_FOLDER}/ffmpeg/win${FFMPEG_ARCH_SUFFIX}/bin")
+        set(FFMPEG_BIN_DIR ${CMAKE_SOURCE_DIR}/bnb_sdk_c_api/bin/ffmpeg/x${ARCH_SUFFIX})
         file(GLOB FFMPEG_LINK_LIBS LIST_DIRECTORIES false "${FFMPEG_BIN_DIR}/*.dll")
 
         add_custom_command(
@@ -44,8 +55,8 @@ function(copy_third target)
 
     # OPENAL
 
-    set(OPENAL_ARCH_SUFFIX $<IF:${IS_WIN64},64,32>)
-    set(OPENAL_BIN_DIR ${BNB_THIRD_FOLDER}/openal/bin/Win${OPENAL_ARCH_SUFFIX})
+   
+    set(OPENAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bnb_sdk_c_api/bin/openal/x${ARCH_SUFFIX})
 
     add_custom_command(
         TARGET ${target}
