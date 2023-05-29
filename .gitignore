@@ -4,3 +4,4 @@
 /cmake-build-*
 /build
 /bnb_sdk_c_api
+!/bnb_sdk_c_api/CMakeLists.txt
