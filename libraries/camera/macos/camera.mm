@@ -168,17 +168,23 @@ using namespace bnb::oep;
             CVPixelBufferRetain(pixelBuffer);
 
             using ns = bnb::oep::interfaces::pixel_buffer;
-            ns::plane_data y_plane{std::shared_ptr<uint8_t>(lumo, [pixelBuffer](uint8_t*) {
-                                       CVPixelBufferRelease(pixelBuffer);
-                                   }),
-                                   0,
-                                   static_cast<int32_t>(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0))};
-            ns::plane_data uv_plane{std::shared_ptr<uint8_t>(chromo, [pixelBuffer](uint8_t*) {
-                                        CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-                                        CVPixelBufferRelease(pixelBuffer);
-                                    }),
-                                    0,
-                                    static_cast<int32_t>(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0))};
+            
+            ns::plane_data y_plane{
+                std::shared_ptr<uint8_t>(lumo, [pixelBuffer](uint8_t*) {
+                    CVPixelBufferRelease(pixelBuffer);
+                }),
+                0,
+                static_cast<int32_t>(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0))
+            };
+            
+            ns::plane_data uv_plane{
+                std::shared_ptr<uint8_t>(chromo, [pixelBuffer](uint8_t*) {
+                    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+                    CVPixelBufferRelease(pixelBuffer);
+                }),
+                0,
+                static_cast<int32_t>(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1))
+            };
 
             std::vector<ns::plane_data> planes{y_plane, uv_plane};
             img = ns::create(planes, bnb::oep::interfaces::image_format::nv12_bt709_full, bufferWidth, bufferHeight);
