@@ -6,6 +6,17 @@
 #include <iostream>
 #include <algorithm>
 
+namespace  {
+    void check_error(bnb_error* e)
+    {
+        if (e) {
+            std::string msg = bnb_error_get_message(e);
+            bnb_error_destroy(e);
+            throw std::runtime_error(msg);
+        }
+    }
+};
+
 namespace bnb::oep
 {
     /* effect_player::effect_player CONSTRUCTOR */
@@ -25,6 +36,17 @@ namespace bnb::oep
         if (m_ep == nullptr) {
             throw std::runtime_error("Failed to create effect player holder.");
         }
+        
+        auto config = bnb_processor_configuration_create(nullptr);
+        
+        bnb_processor_configuration_set_use_future_filter(config, false, nullptr);
+        m_fp = bnb_frame_processor_create_realtime_processor(bnb_realtime_processor_mode_sync, config, &error);
+        check_error(error);
+        
+        bnb_effect_player_set_frame_processor(m_ep, m_fp, &error);
+        check_error(error);
+        
+        bnb_processor_configuration_destroy(config, nullptr);
     }
 
     /* effect_player::~effect_player */
@@ -33,6 +55,10 @@ namespace bnb::oep
         if (m_ep) {
             bnb_effect_player_destroy(m_ep, nullptr);
             m_ep = nullptr;
+        }
+        if (m_fp) {
+            bnb_frame_processor_destroy(m_fp, nullptr);
+            m_fp = nullptr;
         }
         if (m_utility) {
             bnb_utility_manager_release(m_utility, nullptr);
@@ -157,14 +183,16 @@ namespace bnb::oep
         }
 
         bnb_error * error{nullptr};
-        bnb_effect_player_push_frame(m_ep, bnb_image, &error);
-        if (error) {
-            bnb_full_image_release(bnb_image, nullptr);
-            std::string msg = bnb_error_get_message(error);
-            bnb_error_destroy(error);
-            throw std::runtime_error(msg);
-        }
+        auto fd = bnb_frame_data_init(&error);
+        check_error(error);
+        
+        bnb_frame_data_add_full_img(fd, bnb_image, &error);
+        check_error(error);
+        
+        bnb_frame_processor_push(m_fp, fd, &error);
+        check_error(error);
 
+        bnb_frame_data_release(fd, nullptr);
         bnb_full_image_release(bnb_image, nullptr);
     }
 
@@ -172,16 +200,21 @@ namespace bnb::oep
     int64_t effect_player::draw()
     {
         bnb_error * error{nullptr};
-        int64_t ret;
-        while ((ret = bnb_effect_player_draw(m_ep, &error)) < 0) {
-            std::this_thread::yield();
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        int64_t ret = -1;
+         
+        auto result = bnb_frame_processor_pop(m_fp, &error);
+        check_error(error);
+        if (result.status != bnb_processor_status_ok) {
+            bnb_frame_data_release(result.frame_data, nullptr);
+            return -1;
         }
-        if (error) {
-            std::string msg = bnb_error_get_message(error);
-            bnb_error_destroy(error);
-            throw std::runtime_error(msg);
-        }
+        
+        ret = bnb_effect_player_draw_with_external_frame_data(m_ep, result.frame_data, &error);
+    
+        bnb_frame_data_release(result.frame_data, nullptr);
+        
+        check_error(error);
+        
         return ret;
     }
 

@@ -41,9 +41,9 @@ namespace bnb::oep
         bnb_image_format_t make_bnb_image_format(pixel_buffer_sptr image, interfaces::rotation orientation);
         bnb_pixel_format_t make_bnb_pixel_format(pixel_buffer_sptr image);
 
-    private:
-        utility_manager_holder_t * m_utility {nullptr};
-        effect_player_holder_t * m_ep {nullptr};
+        utility_manager_holder_t* m_utility {nullptr};
+        effect_player_holder_t* m_ep {nullptr};
+        frame_processor_t* m_fp {nullptr};
     }; /* class effect_player */
 
 } /* namespace bnb::oep */
