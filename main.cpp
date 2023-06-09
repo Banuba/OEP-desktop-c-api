@@ -62,7 +62,7 @@ void play_effect(const std::string& effect_name)
             }
         };
 
-        oep->process_image_async(image, bnb::oep::interfaces::rotation::deg0, false, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg180);
+        oep->process_image_async(image, bnb::oep::interfaces::rotation::deg0, false, get_pixel_buffer_callback, bnb::oep::interfaces::rotation::deg0);
     };
     auto m_camera_ptr = bnb::camera::create(ef_cb, 0);
 

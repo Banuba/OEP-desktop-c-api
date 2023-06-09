@@ -275,16 +275,16 @@ namespace bnb::oep
         using ns = bnb::oep::interfaces::rotation;
         switch (orientation) {
             case ns::deg0:
-                camera_orient = BNB_DEG_180;
-                break;
-            case ns::deg90:
-                camera_orient = BNB_DEG_270;
-                break;
-            case ns::deg180:
                 camera_orient = BNB_DEG_0;
                 break;
-            case ns::deg270:
+            case ns::deg90:
                 camera_orient = BNB_DEG_90;
+                break;
+            case ns::deg180:
+                camera_orient = BNB_DEG_180;
+                break;
+            case ns::deg270:
+                camera_orient = BNB_DEG_270;
                 break;
         }
         return {static_cast<uint32_t>(image->get_width()), static_cast<uint32_t>(image->get_height()), camera_orient, false, 0};
