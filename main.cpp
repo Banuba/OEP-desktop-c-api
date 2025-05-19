@@ -43,6 +43,11 @@ void play_effect(const std::string& effect_name)
     glfwSetKeyCallback(window->get_window(), key_func);
 
     oep->load_effect(effect_name);
+    // Back slashes. Double escaped. 
+    oep->call_js_method("setBackgroundTexture", "C:\\\\path\\\\to\\\\file\\\\camera_bg_3.jpg");
+
+    // Forward slashes
+    oep->call_js_method("setBackgroundTexture", "C:/path/to/file/camera_bg_3.jpg");
 
     // Create and run instance of camera, pass callback for frames
     // Callback for received frame from the camera
@@ -84,7 +89,7 @@ void play_effect(const std::string& effect_name)
 int main()
 {
     try {
-        play_effect("effects/Afro");
+        play_effect("effects/test_BG");
     }
     catch (std::runtime_error& e) {
         std::cout << e.what();

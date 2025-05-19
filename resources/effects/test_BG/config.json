@@ -1,0 +1,9 @@
+{
+    "camera": {},
+    "background": {
+        "color": "#00FF00"
+    },
+
+    "scene": "test_BG",
+    "version": "2.0.0"
+}
