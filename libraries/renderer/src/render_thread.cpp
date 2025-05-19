@@ -1,4 +1,5 @@
 #include "render_thread.hpp"
+#include <chrono>
 
 namespace bnb::render
 {
